@@ -2,10 +2,10 @@ from tasks.application import AppleStore
 from tasks.application import AppleStoreCheck
 from loguru import logger
 import time
-from apis.code_api import get_email_code,get_mobile_code
+from apis.code_api import get_email_code,get_mobile_code,get_hotmail_code_pop3
 import requests
 
-host_url = 'http://192.168.0.111:8000'  # 主机管理服务器的地址
+host_url = 'http://192.168.61.1:8000'  # 主机管理服务器的地址
 
 def get_mobile(host_url):
     logger.info("申请获取接码API")
@@ -64,14 +64,18 @@ def do_task(apple_id,apple_id_pwd,email_api):
     AppleStore.input_apple_id_pwd(apple_id_pwd)
 
     #检测登录结果
-    time.sleep(4)
+    time.sleep(20)
     login_result,login_reson = login_router_check()
 
 
     if login_result:
         # 接收邮件验证码
-        code = get_email_code(email_api)
-        logger.info(code)
+        code = ""
+        if "http" in email_api:
+            code = get_email_code(email_api)
+        else:
+            code = get_hotmail_code_pop3(apple_id,email_api)
+        AppleStore.input_apple_id_maillcode(code)
         time.sleep(5)
         login_result,login_reson = login_router_check()
     else:
@@ -80,6 +84,10 @@ def do_task(apple_id,apple_id_pwd,email_api):
     if login_result:
         # 获取手机验证码
         phone_num,phone_url = get_mobile(host_url)
+        AppleStore.input_apple_id_input_mobile(phone_num)
+        sms_code = get_mobile_code(phone_url)
+        AppleStore.input_apple_id_maillcode(sms_code)
+
     else:
         phone_num,phone_url=("","")
         result=False

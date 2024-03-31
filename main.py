@@ -7,7 +7,7 @@ import platform
 import subprocess
 import re
 from appstore_login import do_task
-host_url = 'http://192.168.0.111:8000'  # 主机管理服务器的地址
+host_url = 'http://192.168.61.1:8000'  # 主机管理服务器的地址
 def get_lifecycle(host_url):
     logger.info("获取生命周期设置")
     ret = requests.get(f'{host_url}/lifecycle_get')

@@ -1,9 +1,11 @@
 import subprocess
 from loguru import logger
 import time
+import requests
 import os
 import pyautogui
 import sys
+import re
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils.check_on_screen import check_images_on_screen
 class AppleStore():
@@ -77,6 +79,44 @@ class AppleStore():
         # 模拟按下回车键
         pyautogui.press("enter")
         pass
+    @staticmethod
+    def input_apple_id_maillcode(code):
+        logger.info(f"输入苹果邮箱验证吗——{code}")
+        # 输入文本
+        pyautogui.typewrite(code)
+        # 模拟按下回车键
+        time.sleep(4)
+        pyautogui.press("enter")
+        pass
+
+
+    @staticmethod
+    def input_apple_id_input_mobile(code):
+        logger.info(f"输入手机号——{code}")
+        # 输入文本
+        pyautogui.press('tab')
+        time.sleep(0.5)
+        pyautogui.press('tab')
+        pyautogui.typewrite(code)
+        # 模拟按下回车键
+        time.sleep(4)
+        pyautogui.press("enter")
+        pass
+
+    @staticmethod
+    def get_sms_code(code_url):
+        res = requests.get(code_url).text
+        pattern = r"(\d{6})"
+        match = re.search(pattern,res)
+        if match:
+            sms_code= match.group(1)
+            logger.info(sms_code)
+            return sms_code
+        else:
+            logger.error(f"{res}")
+        pass
+
+
 
 
 class AppleStoreCheck(object):
