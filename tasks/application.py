@@ -4,6 +4,7 @@ import time
 import requests
 import os
 import pyautogui
+import pyperclip
 import sys
 import re
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -66,16 +67,29 @@ class AppleStore():
     def input_apple_id(apple_id):
         logger.info(f"输入苹果ID——{apple_id}")
         # 输入文本
-        pyautogui.typewrite(apple_id)
+        pyperclip.copy(apple_id)
+        time.sleep(0.8)
+        pyautogui.keyDown('command')
+        pyautogui.keyDown('v')
+        time.sleep(1)
+        pyautogui.keyUp('command')
+        pyautogui.keyUp('v')
+        
         # 模拟按下回车键
         pyautogui.press("enter")
-        pass
 
     @staticmethod
     def input_apple_id_pwd(apple_id_pwd):
         logger.info(f"输入苹果ID密码——{apple_id_pwd}")
         # 输入文本
-        pyautogui.typewrite(apple_id_pwd)
+        pyperclip.copy(apple_id_pwd)
+        time.sleep(0.8)
+        pyautogui.keyDown('command')
+        pyautogui.keyDown('v')
+        time.sleep(1)
+        pyautogui.keyUp('command')
+        pyautogui.keyUp('v')
+        
         # 模拟按下回车键
         pyautogui.press("enter")
         pass
