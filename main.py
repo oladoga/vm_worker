@@ -78,9 +78,9 @@ def submit_result(ret):
     mobile_url: str
     result: int
     """
-    appleid,pwd,phone,phoneurl,result = ret
+    appleid,pwd,phone,phoneurl,result,reason = ret
     logger.info("任务完成，回馈结果。")
-    _result = {"apple_id":appleid,"password":pwd,"mobile":phone,"mobile_url":phoneurl,"result":result}
+    _result = {"apple_id":appleid,"password":pwd,"mobile":phone,"mobile_url":phoneurl,"result":result,"reason":reason}
 
     _response = requests.post(f'{host_url}/task_done', data=json.dumps(_result))
     if _response.status_code == 200:
@@ -88,24 +88,28 @@ def submit_result(ret):
 
 
 if __name__ == '__main__':
-    sn = get_mac_serial_number()  # 虚拟机ID
-    lifecycle = get_lifecycle(host_url)
-    register_with_host(host_url, sn, status="free", lifecycle=lifecycle)
-    while True:
-        response = requests.get(f'{host_url}/task_get')
-        task = response.json().get(sn)
-        if task is not None:
-            ret = execute_task(task)
-            submit_result(ret)
-
-        else:
-            logger.info("等待主控发配任务")
-
-        time.sleep(2)
-        # tasks = response.json()['tasks']
-        # for task in tasks:
-        #     execute_task(task)
-        # # 完成任务后，向主机管理服务器报告
-        # requests.post(f'{host_url}/tasks', json={'vm_id': vm_id, 'completed_tasks': tasks})
-
-    
+    try:
+        sn = get_mac_serial_number()  # 虚拟机ID
+        lifecycle = get_lifecycle(host_url)
+        register_with_host(host_url, sn, status="free", lifecycle=lifecycle)
+        while True:
+            try:
+                response = requests.get(f'{host_url}/task_get')
+                task = response.json().get(sn)
+                if task is not None:
+                    ret = execute_task(task)
+                    submit_result(ret)
+                else:
+                    logger.info("等待主控发配任务")
+             
+                time.sleep(2)
+            except Exception as e:
+                logger.error(f"严重错误「{e}」")
+            # tasks = response.json()['tasks']
+            # for task in tasks:
+            #     execute_task(task)
+            # # 完成任务后，向主机管理服务器报告
+            # requests.post(f'{host_url}/tasks', json={'vm_id': vm_id, 'completed_tasks': tasks})
+    except Exception as e:
+        logger.error(f"严重错误「{e}」")
+        

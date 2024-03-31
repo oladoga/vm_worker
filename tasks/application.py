@@ -1,7 +1,11 @@
 import subprocess
 from loguru import logger
 import time
+import os
 import pyautogui
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from utils.check_on_screen import check_images_on_screen
 class AppleStore():
     def __init__(self) -> None:
         pass
@@ -77,8 +81,19 @@ class AppleStore():
 
 class AppleStoreCheck(object):
     def __init__(self) -> None:
+        self.pics_path = "pics/login"
         pass
 
-    def check_login():
+    def check_login(self):
+        ret = check_images_on_screen(self.pics_path)
+        for _ret in ret.keys():
+            if ret[_ret] is True:
+                logger.info(_ret)
+                return _ret.replace(".png","")
+            else:
+                logger.info(f"not find {_ret}")
 
         pass
+
+# aps_check = AppleStoreCheck()
+# aps_check.check_login()
