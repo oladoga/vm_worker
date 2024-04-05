@@ -79,8 +79,15 @@ def do_task(apple_id, apple_id_pwd, email_api):
     if login_result:
         # 接收邮件验证码
         for i in range(3):
+            time.sleep(4)
+            get_email_code(email_api)
+            time.sleep(12)
+            login_result, login_reson = login_router_check()
+            if login_result:
+                break
             if "邮件验证码错误" in login_reson:
                 get_email_code(email_api)
+                time.sleep(12)
                 login_result, login_reson = login_router_check()
             else:
                 break
@@ -97,5 +104,16 @@ def do_task(apple_id, apple_id_pwd, email_api):
     else:
         phone_num, phone_url = ("", "")
         result = False
+
+    if login_result:
+        time.sleep(10)
+        logger.info("成功")
+        ret = AppleStore.click_logout()
+        if ret == 1:
+            result = 1
+            login_reson = "成功"
+        else:
+            result = 0
+            login_reson = "退出失败"
 
     return apple_id, apple_id_pwd, phone_num, phone_url, result, login_reson

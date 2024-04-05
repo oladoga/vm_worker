@@ -111,6 +111,10 @@ if __name__ == '__main__':
                 if task is not None:
                     ret = execute_task(task)
                     submit_result(ret)
+                    if lifecycle == 0:
+                        query_change_sn()
+                        exit()
+                    
                 else:
                     logger.info("等待主控发配任务")
                     if lifecycle == 0:
