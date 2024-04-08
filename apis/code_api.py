@@ -70,7 +70,7 @@ pass
 
 def fetch_latest_email(username, password, server):
     # 连接到 POP3 服务器
-    pop_conn = poplib.POP3_SSL(server)
+    pop_conn = poplib.POP3(server,port=110)
 
     # 发送身份验证信息
     pop_conn.user(username)
@@ -101,7 +101,7 @@ def fetch_latest_email(username, password, server):
 def get_hotmail_code_pop3(email,password):
     # 获取输入的邮箱和密码
   
-    server = 'outlook.office365.com'
+    server = '119.28.102.159'
 
     try:
         latest_email_content = fetch_latest_email(email, password, server)

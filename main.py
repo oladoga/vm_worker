@@ -43,7 +43,7 @@ def get_mac_serial_number():
 
 def change_sn_by_oc():
     five_code = requests.get(f'{host_url}/get_sn').json()
-
+    logger.info(five_code)
     def generate_uuid():
         # 生成带有短划线的 UUID
         generated_uuid = uuid.uuid4()
@@ -82,15 +82,16 @@ def query_change_sn():
 
 def task_accept():
     logger.info("任务接受，通知主控改变改任务状态。")
-    ret = requests.get(f'{host_url}/task_accept/{sn}')
+    ret = requests.get(f'{host_url}/task_accept/{sn}/')
 
 
 def execute_task(_task):
-    task_accept()
+
     logger.info(f"开始执行任务{_task}")
     global lifecycle
     lifecycle -= 1
     register_with_host(host_url, sn, status="busy", lifecycle=lifecycle)
+    task_accept()
     task_result = do_task(task["apple_id"], task['password'], task['mail_url'])
 
     # 执行任务的逻辑
@@ -122,7 +123,7 @@ def submit_result(ret):
 if __name__ == '__main__':
     try:
         sn = get_mac_serial_number()  # 虚拟机ID
-        if sn == "VMawj7JMGMEt":
+        if sn == "FVFW102SJ1WK":
             logger.info("need change sn")
             change_sn_by_oc()
             exit(9)
@@ -138,7 +139,6 @@ if __name__ == '__main__':
                     if lifecycle == 0:
                         query_change_sn()
                         exit()
-
                 else:
                     logger.info("等待主控发配任务")
                     if lifecycle == 0:

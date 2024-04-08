@@ -65,7 +65,7 @@ def do_task(apple_id, apple_id_pwd, email_api):
     AppleStore.input_apple_id_pwd(apple_id_pwd)
 
     # 检测登录结果
-    time.sleep(20)
+    time.sleep(35)
     login_result, login_reson = login_router_check()
 
     def get_email_code(email_api):
@@ -87,7 +87,7 @@ def do_task(apple_id, apple_id_pwd, email_api):
                 break
             if "邮件验证码错误" in login_reson:
                 get_email_code(email_api)
-                time.sleep(12)
+                time.sleep(20)
                 login_result, login_reson = login_router_check()
             else:
                 break
@@ -106,7 +106,7 @@ def do_task(apple_id, apple_id_pwd, email_api):
         result = False
 
     if login_result:
-        time.sleep(10)
+        time.sleep(20)
         logger.info("成功")
         ret = AppleStore.click_logout()
         if ret == 1:
