@@ -1,5 +1,7 @@
 import json
 import time
+import uuid
+
 from loguru import logger
 import requests
 import platform
@@ -7,6 +9,7 @@ import subprocess
 import socket
 import re
 from appstore_login import do_task
+from change_sn import update_config_with_five_code
 
 host_url = 'http://oladoga.x3322.net:1988'  # 主机管理服务器的地址
 
@@ -38,12 +41,29 @@ def get_mac_serial_number():
         return None
 
 
+def change_sn_by_oc():
+    five_code = requests.get(f'{host_url}/get_sn').json()
+
+    def generate_uuid():
+        # 生成带有短划线的 UUID
+        generated_uuid = uuid.uuid4()
+        # 返回字符串形式的 UUID
+        return str(generated_uuid).upper()
+    _sn = five_code['sn']
+    _rom = five_code["rom"]
+    _board_id = five_code['board_id']
+    _model_id = five_code['hw_model']
+    _mlb = five_code['mlb']
+    _sys_uuid = generate_uuid()
+    plist_file_path = '/Volumes/OPENCORE/EFI/OC/config.plist'
+    update_config_with_five_code(plist_file_path, _sn, _board_id, _model_id, _sys_uuid, _mlb, _rom)
+    pass
+
 def register_with_host(host_url, sn, status, lifecycle):
     # logger.info(f"向主控注册信息sn:{sn},状态{status},生命周期：{lifecycle}")
     _response = requests.post(f'{host_url}/reg', data=json.dumps({'sn': sn, 'status': status, 'lifecycle': lifecycle}))
     if _response.status_code == 200:
         logger.info(f"成功向主控注册信息sn:{sn},状态{status},生命周期：{lifecycle}")
-
 
 def get_mobile(host_url):
     logger.info("申请获取接码API")
@@ -102,6 +122,10 @@ def submit_result(ret):
 if __name__ == '__main__':
     try:
         sn = get_mac_serial_number()  # 虚拟机ID
+        if sn == "VMawj7JMGMEt":
+            logger.info("need change sn")
+            change_sn_by_oc()
+            exit(9)
         lifecycle = get_lifecycle(host_url)
         register_with_host(host_url, sn, status="free", lifecycle=lifecycle)
         while True:
@@ -114,7 +138,7 @@ if __name__ == '__main__':
                     if lifecycle == 0:
                         query_change_sn()
                         exit()
-                    
+
                 else:
                     logger.info("等待主控发配任务")
                     if lifecycle == 0:
