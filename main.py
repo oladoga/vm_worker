@@ -40,6 +40,13 @@ def get_mac_serial_number():
     else:
         return None
 
+def get_mac_addr():
+    mac_address = ':'.join(['{:02x}'.format((uuid.getnode() >> ele) & 0xff)
+                            for ele in range(0, 8 * 6, 8)][::-1])
+    logger.info(f"get the mac is {mac_address}")
+    return mac_address
+
+
 
 def change_sn_by_oc():
     five_code = requests.get(f'{host_url}/get_sn').json()
@@ -74,10 +81,11 @@ def get_mobile(host_url):
 def query_change_sn():
     logger.info("该SN生命周期已完成，请求更换SN")
     try:
-        ret = requests.post(f'{get_host_ip()}/change_sn', json.dumps({"sn": sn}))
-    except Exception:
+        requests.post(f'{get_host_ip()}:8001/change_sn', json.dumps({"mac": get_mac_addr()}))
+    except Exception as e:
+        logger.error(e)
         pass
-    ret = requests.post(f'{host_url}/reg_del', json.dumps({"sn": sn}))
+    requests.post(f'{host_url}/reg_del', json.dumps({"sn": sn}))
 
 
 def task_accept():
