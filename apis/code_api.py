@@ -7,14 +7,14 @@ from email import parser
 import re
 
 
-def get_mobile_code(mobile_api_url, refresh=4, interval=10,delay_before=5):
+def get_mobile_code(mobile_api_url, refresh=4, interval=10, delay_before=5):
     time.sleep(delay_before)
     try:
         count = 0
         while count < refresh:
             res = requests.get(mobile_api_url).text
             if "message" in res:
-                logger.error(f"第{count+1}次尝试，暂未收到验证码")
+                logger.error(f"第{count + 1}次尝试，暂未收到验证码")
             else:
                 pattern = r"\b\d{6}\b"
                 matches = re.findall(pattern, res)
@@ -52,7 +52,7 @@ def get_email_code(email_api_url, refresh=4, interval=10, delay_before=5):
                         verification_code = match.group(1)
                         return verification_code
                     else:
-                        logger.error(f"第{count+1}次解析失败，接码平台格式错误或未收到邮件验证码,。")
+                        logger.error(f"第{count + 1}次解析失败，接码平台格式错误或未收到邮件验证码,。")
             else:
                 logger.error(res)
                 logger.error("请求失败，请检查URL是否正确")
@@ -63,14 +63,14 @@ def get_email_code(email_api_url, refresh=4, interval=10, delay_before=5):
 
     except Exception as e:
         logger.error("发生异常，请检查网络连接或URL是否正确")
-pass
 
 
-
-
-def fetch_latest_email(username, password, server):
+def fetch_latest_email(username, password, server, is_https):
     # 连接到 POP3 服务器
-    pop_conn = poplib.POP3(server,port=110)
+    if is_https:
+        pop_conn = poplib.POP3_SSL(server)
+    else:
+        pop_conn = poplib.POP3(server, port=110)
 
     # 发送身份验证信息
     pop_conn.user(username)
@@ -98,13 +98,33 @@ def fetch_latest_email(username, password, server):
     # 返回最新一封邮件的内容
     return email.get_payload()
 
-def get_hotmail_code_pop3(email,password):
+
+def get_hotmail_code_pop3(email, password):
     # 获取输入的邮箱和密码
-  
+
+    server = 'outlook.office365.com'
+
+    try:
+        latest_email_content = fetch_latest_email(email, password, server,True)
+        email_content = latest_email_content
+        pattern = r'(\d{6})'  # 匹配6位数字
+        match = re.search(pattern, email_content)
+        if match:
+            verification_code = match.group(1)
+            logger.success(f"验证码获取成功：「{verification_code}」")
+            return verification_code
+        else:
+            logger.error("验证码没有获取到.")
+    except Exception as e:
+        logger.error(f"viryfcation code fetch error:{e}")
+
+
+def get_selfbuild_code_pop3(email, password):
+    # 获取输入的邮箱和密码
     server = '119.28.102.159'
 
     try:
-        latest_email_content = fetch_latest_email(email, password, server)
+        latest_email_content = fetch_latest_email(email, password, server,False)
         email_content = latest_email_content
         pattern = r'(\d{6})'  # 匹配6位数字
         match = re.search(pattern, email_content)

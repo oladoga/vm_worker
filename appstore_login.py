@@ -2,7 +2,7 @@ from tasks.application import AppleStore
 from tasks.application import AppleStoreCheck
 from loguru import logger
 import time
-from apis.code_api import get_email_code, get_mobile_code, get_hotmail_code_pop3
+from apis.code_api import get_email_code, get_mobile_code, get_hotmail_code_pop3,get_selfbuild_code_pop3
 import requests
 
 host_url = 'http://oladoga.x3322.net:1988'  # 主机管理服务器的地址
@@ -72,6 +72,9 @@ def do_task(apple_id, apple_id_pwd, email_api):
         _code = ""
         if "http" in email_api:
             _code = get_email_code(email_api)
+        # add case for microsoft pop3
+        elif "hotmail" in apple_id:
+            _code = (apple_id, email_api)
         else:
             _code = get_hotmail_code_pop3(apple_id, email_api)
         AppleStore.input_apple_id_maillcode(_code)
@@ -82,13 +85,13 @@ def do_task(apple_id, apple_id_pwd, email_api):
             time.sleep(4)
             get_email_code(email_api)
             time.sleep(12)
-            login_result, login_reson = login_router_check()
+            login_result, login_reason = login_router_check()
             if login_result:
                 break
             if "邮件验证码错误" in login_reson:
                 get_email_code(email_api)
                 time.sleep(20)
-                login_result, login_reson = login_router_check()
+                login_result, login_reason = login_router_check()
             else:
                 break
     else:
